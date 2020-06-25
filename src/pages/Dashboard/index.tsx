@@ -11,6 +11,7 @@ import Header from '../../components/Header';
 import formatValue from '../../utils/formatValue';
 
 import { Container, CardContainer, Card, TableContainer } from './styles';
+import { useHistory } from 'react-router-dom';
 
 interface Transaction {
   id: string;
@@ -23,6 +24,11 @@ interface Transaction {
   created_at: Date;
 }
 
+interface DataResponse {
+  transactions: Transaction[];
+  balance: Balance;
+}
+
 interface Balance {
   income: string;
   outcome: string;
@@ -30,12 +36,36 @@ interface Balance {
 }
 
 const Dashboard: React.FC = () => {
-  // const [transactions, setTransactions] = useState<Transaction[]>([]);
-  // const [balance, setBalance] = useState<Balance>({} as Balance);
+  const history = useHistory();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [balance, setBalance] = useState<Balance>({} as Balance);
 
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
-      // TODO
+      const { data } = await api.get<DataResponse>('/transactions');
+
+      const formattedTransaction = data.transactions.map(transaction => {
+        return {
+          id: transaction.id,
+          title: transaction.title,
+          value: transaction.value,
+          type: transaction.type,
+          formattedValue: Intl.NumberFormat('pt-Br', {
+            style: 'currency',
+            currency: 'BRL',
+          }).format(transaction.value),
+          formattedDate: Intl.DateTimeFormat('pt-Br').format(
+            transaction.created_at,
+          ),
+          created_at: transaction.created_at,
+          category: {
+            title: transaction.category.title,
+          },
+        };
+      });
+
+      setTransactions(formattedTransaction);
+      setBalance(data.balance);
     }
 
     loadTransactions();
@@ -43,8 +73,21 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <Header />
+      <Header path={history.location.pathname} />
       <Container>
+        {transactions.map(
+          ({
+            id,
+            title,
+            value,
+            formattedDate,
+            formattedValue,
+            category,
+            type,
+          }) => (
+            <div>{id}</div>
+          ),
+        )}
         <CardContainer>
           <Card>
             <header>

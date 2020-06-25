@@ -21,6 +21,7 @@ interface FileProps {
 const Import: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
   const history = useHistory();
+  console.log(history);
 
   async function handleUpload(): Promise<void> {
     // const data = new FormData();
@@ -40,7 +41,7 @@ const Import: React.FC = () => {
 
   return (
     <>
-      <Header size="small" />
+      <Header size="small" path={history.location.pathname} />
       <Container>
         <Title>Importar uma transação</Title>
         <ImportFileContainer>
